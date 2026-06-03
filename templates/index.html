@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Vessel Performance & Voyage Optimization Tool</title>
+
+    <style>
+
+        body{
+            font-family: Arial, sans-serif;
+            background:#f4f7fc;
+            margin:0;
+            padding:0;
+        }
+
+        .nav{
+            background:#2563eb;
+            padding:15px;
+            text-align:center;
+        }
+
+        .nav a{
+            color:white;
+            text-decoration:none;
+            margin:15px;
+            font-weight:bold;
+        }
+
+        .container{
+            width:90%;
+            margin:auto;
+            padding:20px;
+        }
+
+        .header{
+            background:#2563eb;
+            color:white;
+            text-align:center;
+            padding:20px;
+            border-radius:10px;
+            font-size:28px;
+            font-weight:bold;
+            margin-bottom:20px;
+        }
+
+        .card{
+            background:white;
+            padding:20px;
+            border-radius:12px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom:20px;
+        }
+
+        h1{
+            color:#2563eb;
+        }
+
+        h2{
+            color:#2563eb;
+        }
+
+        input{
+            width:100%;
+            padding:10px;
+            margin-top:5px;
+            margin-bottom:15px;
+            border:1px solid #ccc;
+            border-radius:6px;
+        }
+
+        button{
+            background:#2563eb;
+            color:white;
+            border:none;
+            padding:12px 25px;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        button:hover{
+            background:#1d4ed8;
+        }
+
+        .good{
+            color:green;
+            font-weight:bold;
+        }
+
+        .bad{
+            color:red;
+            font-weight:bold;
+        }
+
+        .dashboard{
+            display:flex;
+            gap:20px;
+            flex-wrap:wrap;
+        }
+
+        .stat-card{
+            background:white;
+            width:220px;
+            padding:20px;
+            text-align:center;
+            border-radius:12px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3{
+            color:#2563eb;
+        }
+
+        footer{
+            text-align:center;
+            margin-top:40px;
+            padding:20px;
+            background:white;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="#report">Report</a>
+    <a href="#voyage">Voyage</a>
+    <a href="#map">Route Map</a>
+    <a href="#dashboard">Dashboard</a>
+</div>
+
+<div class="container">
+
+<div class="header">
+🚢 Vessel Performance & Voyage Optimization System
+</div>
+
+<div class="card">
+
+<form method="POST">
+
+<h2>Vessel Information</h2>
+
+<label>Vessel Name</label>
+<input type="text" name="vessel_name" required>
+
+<label>Voyage Number</label>
+<input type="text" name="voyage_number" required>
+
+<h2>Benchmark Data</h2>
+
+<label>Benchmark Speed (Knots)</label>
+<input type="number" step="0.1" name="benchmark_speed" required>
+
+<label>Benchmark Fuel Consumption (MT/day)</label>
+<input type="number" step="0.1" name="benchmark_fuel" required>
+
+<label>Fuel Price ($/MT)</label>
+<input type="number" step="0.1" name="fuel_price" required>
+
+<h2>Noon Report</h2>
+
+<label>Actual Speed (Knots)</label>
+<input type="number" step="0.1" name="actual_speed" required>
+
+<label>Actual Fuel Consumption (MT/day)</label>
+<input type="number" step="0.1" name="actual_fuel" required>
+
+<h2>Weather Data</h2>
+
+<label>Wind Speed (Knots)</label>
+<input type="number" step="0.1" name="wind_speed" required>
+
+<label>Wave Height (Meters)</label>
+<input type="number" step="0.1" name="wave_height" required>
+
+<h2>Voyage Optimization</h2>
+
+<label>Distance (NM)</label>
+<input type="number" step="0.1" name="distance" required>
+
+<label>Commanded Speed STW (Knots)</label>
+<input type="number" step="0.1" name="stw_speed" required>
+
+<button type="submit">
+Analyze Vessel
+</button>
+
+</form>
+
+</div>
+
+{% if report %}
+
+<div class="card">
+
+<h1 id="report">Vessel Performance Report</h1>
+
+<p><b>Vessel:</b> {{ report.vessel_name }}</p>
+<p><b>Voyage:</b> {{ report.voyage_number }}</p>
+<p><b>Speed Variance:</b> {{ report.speed_variance }} Knots</p>
+<p><b>Fuel Variance:</b> {{ report.fuel_variance }} MT/day</p>
+<p><b>Extra Fuel Cost:</b> ${{ report.extra_fuel_cost }}</p>
+<p><b>Weather Risk:</b> {{ report.weather_risk }}</p>
+<p><b>Estimated Speed Loss:</b> {{ report.estimated_speed_loss }} Knots</p>
+<p><b>Optimized Speed:</b> {{ report.optimized_speed }} Knots</p>
+<p><b>Original Voyage Time:</b> {{ report.voyage_time }} Hours</p>
+<p><b>Optimized Voyage Time:</b> {{ report.optimized_voyage_time }} Hours</p>
+
+<p>
+<b>Status:</b>
+
+{% if report.status == "Within Limits" %}
+<span class="good">{{ report.status }}</span>
+{% else %}
+<span class="bad">{{ report.status }}</span>
+{% endif %}
+</p>
+
+<a href="/download_report">
+<button type="button">
+Download PDF Report
+</button>
+</a>
+
+</div>
+
+<div class="card">
+
+<h1 id="voyage">Voyage Optimization Report</h1>
+
+<p><b>Current Voyage Duration:</b> {{ voyage_data.voyage_days }} Days</p>
+<p><b>Fuel Required:</b> {{ voyage_data.fuel_required }} MT</p>
+<p><b>Total Fuel Cost:</b> ${{ voyage_data.total_cost }}</p>
+
+<h2>Suggested Alternate Route</h2>
+
+<p><b>Alternate Distance:</b> {{ voyage_data.alt_distance }} NM</p>
+<p><b>Alternate Duration:</b> {{ voyage_data.alt_days }} Days</p>
+<p><b>Alternate Fuel Required:</b> {{ voyage_data.alt_fuel }} MT</p>
+<p><b>Alternate Total Cost:</b> ${{ voyage_data.alt_cost }}</p>
+
+<h2>Savings Analysis</h2>
+
+<p><b>Fuel Saved:</b> {{ voyage_data.fuel_saved }} MT</p>
+<p><b>Money Saved:</b> ${{ voyage_data.money_saved }}</p>
+
+</div>
+
+<div class="card">
+
+<h1 id="map">Voyage Route Map</h1>
+
+<iframe
+src="/route_map"
+width="100%"
+height="600"
+style="border:none;">
+</iframe>
+
+</div>
+
+{% endif %}
+
+{% if dashboard %}
+
+<div class="card">
+
+<h1 id="dashboard">Historical Dashboard</h1>
+
+<div class="dashboard">
+
+<div class="stat-card">
+<h3>Total Voyages</h3>
+<h2>{{ dashboard.total_voyages }}</h2>
+</div>
+
+<div class="stat-card">
+<h3>Avg Speed Variance</h3>
+<h2>{{ dashboard.avg_speed_variance }}</h2>
+</div>
+
+<div class="stat-card">
+<h3>Avg Fuel Variance</h3>
+<h2>{{ dashboard.avg_fuel_variance }}</h2>
+</div>
+
+<div class="stat-card">
+<h3>Total Extra Cost</h3>
+<h2>${{ dashboard.total_extra_cost }}</h2>
+</div>
+
+</div>
+
+<br>
+
+<h2>Fuel Cost Trend</h2>
+
+<img src="{{ url_for('static', filename='fuel_cost_chart.png') }}"
+width="700">
+
+<br><br>
+
+<h2>Weather Risk Distribution</h2>
+
+<img src="{{ url_for('static', filename='weather_chart.png') }}"
+width="500">
+
+<h2>Weather Statistics</h2>
+
+<ul>
+{% for key, value in dashboard.weather_counts.items() %}
+<li>{{ key }} : {{ value }}</li>
+{% endfor %}
+</ul>
+
+</div>
+
+{% endif %}
+
+<footer>
+
+<h3>Vessel Performance & Voyage Optimization Tool</h3>
+
+<p>Developed by Akshat Tripathi</p>
+
+<p>AI Assisted Full Stack Development Internship Project</p>
+
+</footer>
+
+</div>
+
+</body>
+</html>
